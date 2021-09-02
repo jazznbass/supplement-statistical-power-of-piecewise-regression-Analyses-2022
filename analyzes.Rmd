@@ -79,7 +79,7 @@ scan::plotSC(dat, ylab = "Behaviour frequency", ylim = c(0,NA), lines = list("me
 
 ```{r}
 scan::describe(dat) |> export()
-scan::plm(dat, family = "poisson") 
+scan::plm(dat, family = "poisson")
 scan::plm(dat) |> export() 
 ```
 
