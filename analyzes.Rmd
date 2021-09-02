@@ -1,0 +1,85 @@
+---
+title: "Analyzing single-case behavioral data"
+author: "Jürgen Wilbert"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+abstract: Monte-Carlo data generation and analzes for the pape Analyzing single-case
+  behavioral data
+---
+
+```{r setup, include = FALSE}
+library(scan)
+
+source("scan_variation.R")
+source("add-function.R")
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+# Variation of effect size
+
+This is defined as the mean frequency of problematic behaviour at the intervention start.
+
+Variations are: `r seq(2, 22, length = 11)`
+
+
+```{r generate-problemintensity}
+if (file.exists("problemintensity.rds")) {
+  out <- readRDS("problemintensity.rds")
+} else {
+  starttime <- proc.time()
+  
+  out <- montecarloSC(
+    n = 10000,
+    seed = 1237,
+    iter = seq(2, 22, length = 11),
+    cases = 1,
+    d.level = -0.5,
+    m = "i",
+    s = 1,
+    MT = 30,
+    B.start = 0.33,
+    stat = c("plm", "plm.poisson"),
+    distribution = "poisson",
+    filename = "problemintensity"
+  )
+
+  duration <- proc.time() - starttime
+  duration
+}
+
+
+```
+
+```{r problemintensity-plot-1, fig.cap="Figure: Alpha and Beta error proportions."}
+#tiff(filename = "FIGURE2.tiff", width = 3000, height = 3000, units = "px", pointsize = 20, bg = "white", compression = "zip",res = 300)
+plot.mc(out)
+#dev.off()
+```
+
+```{r problemintensity-plot-2, fig.cap="Figure: Proportion correct decisions based on alpha-level cut-off of 0.05)"}
+plot.mc(out, type = 2)
+```
+
+## Example single-case
+
+```{r}
+set.seed(1240)
+dat <- scan::rSC(
+  level = -6, m = 12, s = 1, MT = 30, B.start = 0.33, distribution = "poisson"
+)
+
+scan::plotSC(dat, ylab = "Behaviour frequency", ylim = c(0,NA), lines = list("mean", col = "red"))
+```
+
+```{r}
+scan::describe(dat) |> export()
+scan::plm(dat, family = "poisson") 
+scan::plm(dat) |> export()
+```
+
