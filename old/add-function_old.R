@@ -1,6 +1,13 @@
 
 
-montecarloSC <- function(iter, seed = 1234, xlab = "d level", ylab = "Proportion",  stat = "plm",rand.test.stat = c("Mean B-A", "B"), test.parameter = "level", cases = 1, d.level = 0, MT = 20, B.start = 6, d.slope = 0, d.trend = 0, m = 20, s = 10, rtt = 0.8,extreme.p = 0, extreme.d = c(-4,-3), n = 500, limit = 5, exclude.equal = "auto", filename = NULL, distribution = "normal") {
+montecarloSC <- function(iter, seed = 1234, xlab = "d level",
+                         ylab = "Proportion",  stat = "plm",
+                         rand.test.stat = c("Mean B-A", "B"),
+                         test.parameter = "level", cases = 1, d.level = 0,
+                         MT = 20, B.start = 6, d.slope = 0, d.trend = 0, m = 20,
+                         s = 10, rtt = 0.8,extreme.p = 0, extreme.d = c(-4,-3),
+                         n = 500, limit = 5, exclude.equal = "auto",
+                         filename = NULL, distribution = "normal") {
 	set.seed(seed)
 	a.norm <- rep(NA,length(iter))
 	b.norm <- rep(NA,length(iter))
@@ -48,7 +55,15 @@ montecarloSC <- function(iter, seed = 1234, xlab = "d level", ylab = "Proportion
 			d.level.2 <- m.2*d.level.2
 		}
 
-		res <- power.testSC(rand.test.stat = rand.test.stat, test.parameter = test.parameter, stat = stat, cases = cases.2, d.level = d.level.2, d.trend = d.trend.2,MT = MT.2, rtt = rtt.2,B.start = B.start.2, d.slope = d.slope.2, m = m.2, s = s.2, extreme.p = extreme.p.2, extreme.d = extreme.d.2, n = n, limit = limit, silent = TRUE, exclude.equal = exclude.equal, distribution = distribution)
+		res <- power.testSC(
+		  rand.test.stat = rand.test.stat, test.parameter = test.parameter,
+		  stat = stat, cases = cases.2, d.level = d.level.2, d.trend = d.trend.2,
+		  MT = MT.2, rtt = rtt.2,B.start = B.start.2, d.slope = d.slope.2, m = m.2,
+		  s = s.2, extreme.p = extreme.p.2, extreme.d = extreme.d.2, n = n,
+		  limit = limit, silent = TRUE, exclude.equal = exclude.equal,
+		  distribution = distribution
+		)
+
 		if(test.parameter == "level") {
 			b.norm[i] <- res$power.plm.level
 			b.poisson[i] <- res$power.plm.poisson.level
@@ -63,7 +78,10 @@ montecarloSC <- function(iter, seed = 1234, xlab = "d level", ylab = "Proportion
 		}
 
 	}
-	dat <- data.frame(iter = iter, a.norm = a.norm, b.norm = b.norm, a.poisson = a.poisson, b.poisson = b.poisson)
+	dat <- data.frame(
+	  iter = iter, a.norm = a.norm, b.norm = b.norm, a.poisson = a.poisson,
+	  b.poisson = b.poisson
+	)
 
 	x <- sys.call()
 	tmp <- as.list(x)

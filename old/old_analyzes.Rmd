@@ -1,5 +1,5 @@
 ---
-title: "Analyzing single-case behavioral data"
+title: "Sensitivity and specificity of plm models for analyzing single-case behavioral data"
 author: "Jürgen Wilbert"
 date: "`r Sys.Date()`"
 output:

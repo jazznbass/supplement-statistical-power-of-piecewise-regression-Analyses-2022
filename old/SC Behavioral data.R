@@ -8,12 +8,8 @@
 #library(scan)
 #SCAN()
 
-dir <- file.path(DIR$PAPERS, "Paper - Analyzing single-case behavioral data", "analyzes")
-setwd(dir)
-
 source("scan_variation.R")
 source("add-function.R")
-
 
 ########### how strong is the problem?
 
@@ -39,7 +35,10 @@ duration
 
 load("problemintensity.Rdata")
 out
-tiff(filename = "FIGURE2.tiff", width = 3000, height = 3000, units = "px", pointsize = 20, bg = "white", compression = "zip",res = 300)
+tiff(
+  filename = "FIGURE2.tiff", width = 3000, height = 3000, units = "px",
+  pointsize = 20, bg = "white", compression = "zip",res = 300
+)
 plot.mc(out)
 dev.off()
 
