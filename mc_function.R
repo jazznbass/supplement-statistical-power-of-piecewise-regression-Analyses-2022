@@ -1,6 +1,6 @@
 design_template <- function(...) {
   out <- as.list(substitute(...()))
-  valid <- names(formals(design_rSC))
+  valid <- names(formals(scan::design))
   check <- sapply(names(out), function(x) !x %in% valid)
   if (any(check)) {
     stop("\nWrong argument(s): ",
@@ -59,7 +59,7 @@ mc_scan <- function(design,
     for(j in x) eval(j, envir = mc_env)
 
     new_design <- do.call(
-      "design_rSC",
+      "design",
       lapply(design, function(x) eval(x, envir = mc_env))
     )
 
@@ -80,7 +80,7 @@ mc_scan <- function(design,
 
     # output remaining time
     counter <- counter + 1
-    .progress_feedback(counter, n_iterations, (proc.time() - starttime)[1])
+    .progress_feedback(counter, n_iterations, (proc.time() - starttime)[3])
   }
 
   cat("\n")

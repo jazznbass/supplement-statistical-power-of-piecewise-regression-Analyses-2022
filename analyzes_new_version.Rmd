@@ -23,6 +23,9 @@ knitr::opts_chunk$set(
 )
 
 create_mc <- function(filename, design, iterations, force_renew = FALSE) {
+  
+  #force_renew = TRUE
+  
   if (file.exists(filename) && !force_renew) {
     out <- readRDS(filename)
   } else {
@@ -49,17 +52,53 @@ cat_parameters <- function(iterations, design) {
 
 # Bascic reference case
 
-The base design is:  
+## Figure single-case parameters
+
+```{r}
+
+
+n2 <- 10
+x1 <- c(rep(17.5, n2), rep(7.5, n2))
+x1 <- x1 - seq(0.1, 4, length = n2*2)
+x2 <- x1 +2.5
+x3 <- x1 - 2.5
+
+case <- scdf(x1 = x1, x2 = x2, x3 = x3, dvar = "x1", phase_design = list(A = n2, B = n2))
+
+scplot(case) %>%
+  add_theme("minimal") %>%
+  set_yaxis(limits = c(0,22), line = list(
+    arrow = arrow(ends = "last", length = unit(5, "points")))) %>%
+  set_casenames("") %>%
+  set_ylabel("Intensity\nof\nobserved\nbehaviour", angle = 0) %>%
+  set_xlabel("") %>%
+  set_phasenames(labels = c("Length of\nphase A", "Length of\nphase B")) %>%
+  add_title("") %>%
+  set_dataline(point = list(size = 1)) %>%
+  add_dataline("x2", point = list(size = 1, colour = "grey90"), colour = "grey90") %>%
+  add_dataline("x3", point = list(size = 1, colour = "grey90"), colour = "grey90") %>%
+  add_text("Strength of the\nintervention effect",x = n2+1, y = 11, hjust = 0, face = 3) %>%
+  add_arrow(x0 = n2+0.5, y0 = 15.5, x1 = n2+0.5, y1 = 5.5, ends = "both") %>%
+  add_arrow(x0 = 1, y0 = 22, x1 = n2, y1 = 22, ends = "both") %>%
+  add_arrow(x0 = n2+1, y0 = 22, x1 = n2*2, y1 = 22, ends = "both") %>%
+  add_arrow(x0 = 1, y0 = 4, x1 = n2*2, y1 = 0, ends = "both") %>%
+  add_text("Trend effect",x = 3, y = 4.5, hjust = 0, face = 3) %>%
+  set_separator(linetype = "dashed", size = 0.2)
+```
+
+
+
+## The base design
 
 ```{r results='asis'}
 
 base_design <- design_template(
   n = n_sims,
   start_value = 15,
-  level = 15 * -0.50,
+  level = -(15 *0.50),
   trend = rnorm(n_sims, 0, 0.2 * 15 /30),
-  slope = rnorm(n_sims, 0, 0.2 * abs(15 * -0.50) /20),
-  phase.design = list(A = 10, B = 20),
+  slope = rnorm(n_sims, 0, 0.2 * 15 * 0.50 /20),
+  phase_design = list(A = 10, B = 20),
   distribution = "poisson"
 )
 
@@ -78,14 +117,13 @@ tmp_env <- new.env()
 tmp_env$n_sims <- 3
 
 design <- do.call(
-  "design_rSC",
+  "design",
   lapply(base_design, function(x) eval(x, envir = tmp_env))
 )
-dat <- rSC(design)
-
+dat <- random_scdf(design)
 
 scplot::scplot(dat) %>%
-  set_ylabel("Behaviour frequency") %>%
+  set_ylabel("Behavior frequency") %>%
   set_yaxis(limits = c(0,40)) %>%
   add_statline("trend", color = "red") %>%
   add_text(paste0("Trend = ", round(design$cases[[1]]$trend,2), "; slope = ",
@@ -111,10 +149,10 @@ export(plm(dat[3], family = "poisson"))
 design <- modifyList(
   base_design,
   design_template(
-    level = 15*level_effect,
+    level = level_effect*15,
     trend = rnorm(n_sims, 0, 0.2*15/(A_length+B_length)),
-    slope = rnorm(n_sims, 0, 0.25*abs((15*level_effect))/B_length),
-    phase.design = list(A = A_length, B = B_length)
+    slope = rnorm(n_sims, 0, 0.25*abs(15*level_effect)/B_length),
+    phase_design = list(A = A_length, B = B_length)
   )
 )
 
@@ -142,9 +180,9 @@ design <- design_template(
     n = n_sims,
     start_value = problemintensity,
     level = problemintensity*level_effect,
-    trend = rnorm(n_sims, 0, 0.2*problemintensity/length),
-    slope = rnorm(n_sims, 0, 0.25*abs(problemintensity*level_effect)/(length * 2 /3)),
-    phase.design = list(A = length / 3, B = length * 2 /3 ),
+    trend = rnorm(n_sims, 0, 0.2 * problemintensity/length),
+    slope = rnorm(n_sims, 0, 0.25* abs(problemintensity*level_effect)/(length * 2 /3)),
+    phase_design = list(A = length * 1/3, B = length * 2/3 ),
     distribution = "poisson"
 )
 
@@ -177,10 +215,10 @@ cat_parameters(iterations, design)
 design <- design_template(
     n = n_sims,
     start_value = problemintensity,
-    level = problemintensity*-0.5,
+    level = -(problemintensity*0.5),
     trend = rnorm(n_sims, 0, abs(trend_effect*problemintensity/length)),
-    slope = rnorm(n_sims, 0, abs(0.25*problemintensity*-0.5/(length * 2 /3))),
-    phase.design = list(A = length / 3, B = length * 2 /3 ),
+    slope = rnorm(n_sims, 0, abs(0.25*problemintensity*-0.5/(length * 2/3))),
+    phase_design = list(A = length * 1/3, B = length * 2/3 ),
     distribution = "poisson"
 )
 
