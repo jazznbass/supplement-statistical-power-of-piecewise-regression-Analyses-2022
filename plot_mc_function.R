@@ -14,8 +14,25 @@ plot_mc <- function(data_mc,
     t() %>%
     as.data.frame()
 
+  rn <- function(df, ...) {
+    vars <- c(...)
+    for(i in seq_along(vars)) {
+      id <- which(names(df) %in% vars[i])
+      if (length(id) > 0) names(df)[id] <- names(vars[i])
+    }
+    df
+  }
+
   # reorganize data
   df <- df %>%
+    rn(
+      "Total number of measurement times" = "length",
+      "Number of measurement times phase A" = "A_length",
+      "Number of measurement\ntimes phase B" = "B_length",
+      "Trend effect" =  "trend_effect",
+      "Intervention effect" =  "level_effect",
+      "Initial behavior frequency" = "problemintensity"
+    ) %>%
     mutate(
       Power = sapply(data_mc, function(x) x$Power),
       Alpha = sapply(data_mc, function(x) x$`Alpha Error`)
@@ -24,9 +41,11 @@ plot_mc <- function(data_mc,
                  names_to = "Statistic",
                  values_to = "Percentage")
 
+
   if (is.numeric(var_x)) var_x <- names(df)[var_x]
   if (is.numeric(var_shape)) var_shape <- names(df)[var_shape]
   if (is.numeric(var_facet)) var_facet <- names(df)[var_facet]
+
 
   df[[var_shape]] <- factor(df[[var_shape]])
 
@@ -56,6 +75,9 @@ plot_mc <- function(data_mc,
   )
 
   if (var_facet %in% names(df)) {
+    id <- which(names(df) == var_facet)
+    var_facet <- paste0("`", var_facet, "`")
+    names(df)[id] <- var_facet
     p <- p + facet_wrap(var_facet, ncol = ncol,labeller = label_both)
   }
 
