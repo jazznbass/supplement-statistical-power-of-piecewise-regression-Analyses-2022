@@ -8,9 +8,11 @@ output:
 ---
 
 ```{r setup, include = FALSE}
+# when you run into problems with the scplot github version, please install the package included in this repository
 if (!("scplot" %in% installed.packages())) 
   devtools::install_github("jazznbass/scaledic")
 
+# if necessary, install the following cran packages ahead
 library(scan)
 library(scplot)
 library(tidyverse)
@@ -26,8 +28,6 @@ knitr::opts_chunk$set(
 )
 
 create_mc <- function(filename, design, iterations, force_renew = FALSE, alpha_test = FALSE) {
-  
-  #force_renew = TRUE
   
   if (file.exists(filename) && !force_renew) {
     out <- readRDS(filename)
@@ -52,7 +52,6 @@ cat_parameters <- function(iterations, design) {
 
 ```
 
-
 # Bascic reference case
 
 ## Figure single-case parameters
@@ -64,7 +63,8 @@ x1 <- c(rep(17.5, n2), rep(7.5, n2))
 x2 <- x1 +2.5
 x3 <- x1 - 2.5
 
-case <- scdf(x1 = x1, x2 = x2, x3 = x3, dvar = "x1", phase_design = list(A = n2, B = n2))
+case <- scdf(x1 = x1, x2 = x2, x3 = x3, 
+             dvar = "x1", phase_design = list(A = n2, B = n2))
 
 scplot(case) %>%
   add_theme("minimal") %>%
@@ -73,26 +73,35 @@ scplot(case) %>%
   set_casenames("") %>%
   set_ylabel("Frequency\nof problem\nbehavior", angle = 0) %>%
   set_xlabel("") %>%
-  set_phasenames(labels = c("Number of measurement times\nphase A", "Number of measurement times\nphase B")) %>%
+  set_phasenames(labels = c("Number of measurement times\nphase A", 
+                            "Number of measurement times\nphase B")) %>%
   add_title("") %>%
   set_dataline(point = list(size = 1)) %>%
-  add_dataline("x2", point = list(size = 1, colour = "grey90"), colour = "grey90") %>%
-  add_dataline("x3", point = list(size = 1, colour = "grey90"), colour = "grey90") %>%
-  add_text("Strength of the\nintervention effect (level)",x = n2+1, y = 11, hjust = 0, face = 3) %>%
+  add_dataline("x2", colour = "grey90",
+               point = list(size = 1, colour = "grey90")) %>%
+  add_dataline("x3", colour = "grey90", 
+               point = list(size = 1, colour = "grey90")) %>%
+  add_text("Strength of the\nintervention effect (level)",
+           x = n2+1, y = 11, hjust = 0, face = 3) %>%
   add_arrow(x0 = n2+0.5, y0 = 17, x1 = n2+0.5, y1 = 7, ends = "both") %>%
   add_arrow(x0 = 1, y0 = 22, x1 = n2, y1 = 22, ends = "both") %>%
   add_arrow(x0 = n2+1, y0 = 22, x1 = n2*2, y1 = 22, ends = "both") %>%
-  add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -4, ends = "last", color = "grey90") %>%
-  add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -9, ends = "last", color = "grey90") %>%
+  add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -4, ends = "last", 
+            color = "grey90") %>%
+  add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -9, ends = "last", 
+            color = "grey90") %>%
   add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -6, ends = "last") %>%
   add_text("Trend effect",x = 3, y = -3, hjust = 0, face = 3) %>%
-  add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = 0, ends = "last", color = "grey90") %>%
-  add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = -2, ends = "last", color = "grey90") %>%
+  add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = 0, ends = "last",
+            color = "grey90") %>%
+  add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = -2, ends = "last", 
+            color = "grey90") %>%
   add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = -1, ends = "last") %>%
-  add_text("Strength of the\nintervention effect (slope)",x = n2+1, y = 2, hjust = 0, face = 3,) %>%
+  add_text("Strength of the\nintervention effect (slope)",x = n2+1, y = 2,
+           hjust = 0, face = 3,) %>%
   set_separator(linetype = "dashed", size = 0.2)
 
-#ggsave(filename = "figure1.tiff", width = 18, height = 12,  device='tiff', units = "cm", dpi=300)
+ggsave(filename = "figure1.tiff", width = 18, height = 12,  device='tiff', units = "cm", dpi=300)
 
 
 ```
