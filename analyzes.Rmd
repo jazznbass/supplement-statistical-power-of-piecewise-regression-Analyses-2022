@@ -52,9 +52,7 @@ cat_parameters <- function(iterations, design) {
 
 ```
 
-# Bascic reference case
-
-## Figure single-case parameters
+# Figure single-case parameters
 
 ```{r}
 
@@ -106,28 +104,7 @@ ggsave(filename = "figure1.tiff", width = 18, height = 12,  device='tiff', units
 
 ```
 
-
-
-## The base design
-
-```{r results='asis'}
-
-base_design <- design_template(
-  n = n_sims,
-  start_value = 15,
-  level = -(15 *0.50),
-  trend = rnorm(n_sims, 0, 0.1 * 15 /30),
-  slope = rnorm(n_sims, 0, 0.1 * 15 /20),
-  phase_design = list(A = 10, B = 20),
-  distribution = "poisson"
-)
-
-cat("n_sims = 10000  \n")
-cat(paste(names(base_design), "=", base_design, collapse = "  \n"))
-
-```
-
-## Example single-cases with the base deisgn parameters
+# Example single-cases
 
 ```{r}
 
@@ -172,16 +149,12 @@ scplot::scplot(dat[1]) %>%
 
 ```{r}
 export(plm(dat[1], family = "poisson"))
-```
-
-```{r}
-export(plm(dat[1], family = "poisson"))
 export(plm(dat[2], family = "poisson"))
 export(plm(dat[3], family = "poisson"))
 ```
 
 
-# Length if A and B phase and intervention effectiveness 
+# Length of A and B phase and intervention effectiveness 
 
 
 ```{r}
