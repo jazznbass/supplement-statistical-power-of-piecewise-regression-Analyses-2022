@@ -7,7 +7,8 @@ plot_mc <- function(data_mc,
                     var_x = 1,
                     var_shape = 2,
                     var_facet = 3,
-                    ncol = 2) {
+                    ncol = 2,
+                    reverse = FALSE) {
 
   # extract data
   df <- sapply(data_mc, function(x) unlist(attr(x, "iter"))) %>%
@@ -35,9 +36,9 @@ plot_mc <- function(data_mc,
     ) %>%
     mutate(
       Power = sapply(data_mc, function(x) x$Power),
-      Alpha = sapply(data_mc, function(x) x$`Alpha Error`)
+      'Alpha error' = sapply(data_mc, function(x) x$`Alpha Error`)
     ) %>%
-    pivot_longer(cols = c("Alpha", "Power"),
+    pivot_longer(cols = c("Alpha error", "Power"),
                  names_to = "Statistic",
                  values_to = "Percentage")
 
@@ -48,6 +49,12 @@ plot_mc <- function(data_mc,
 
 
   df[[var_shape]] <- factor(df[[var_shape]])
+  df[[var_facet]] <- factor(df[[var_facet]])
+
+  if (reverse) {
+    levels(df[[var_facet]]) <- rev(levels(df[[var_facet]]))
+
+  }
 
   p <- ggplot(
     df,
@@ -78,7 +85,7 @@ plot_mc <- function(data_mc,
     id <- which(names(df) == var_facet)
     var_facet <- paste0("`", var_facet, "`")
     names(df)[id] <- var_facet
-    p <- p + facet_wrap(var_facet, ncol = ncol,labeller = label_both)
+    p <- p + facet_wrap(var_facet, ncol = ncol,labeller = .label_both)
   }
 
   if (isTRUE(caption)) {
@@ -93,4 +100,27 @@ plot_mc <- function(data_mc,
   p
 }
 
+.label_both <- function (labels, multi_line = FALSE, sep = ": ")
+{
+  value <- label_value(labels, multi_line = multi_line)
+  variable <- ggplot2:::label_variable(labels, multi_line = multi_line)
+  if (multi_line) {
+    out <- vector("list", length(value))
+    for (i in seq_along(out)) {
+      out[[i]] <- paste(variable[[i]], value[[i]], sep = sep)
+    }
+  }
+  else {
+    value <- do.call("paste", c(value, sep = ", "))
+    variable <- do.call("paste", c(variable, sep = ", "))
+    out <- Map(paste, variable, value, sep = sep)
+    out <- list(unname(unlist(out)))
+  }
 
+
+  for (i in seq_along(out)) {
+    out[[i]] <- paste0(letters[1:length(out[[i]])], ") ", out[[i]])
+  }
+
+  out
+}

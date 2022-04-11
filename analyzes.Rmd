@@ -8,6 +8,9 @@ output:
 ---
 
 ```{r setup, include = FALSE}
+if (!("scplot" %in% installed.packages())) 
+  devtools::install_github("jazznbass/scaledic")
+
 library(scan)
 library(scplot)
 library(tidyverse)
@@ -56,10 +59,8 @@ cat_parameters <- function(iterations, design) {
 
 ```{r}
 
-
 n2 <- 10
 x1 <- c(rep(17.5, n2), rep(7.5, n2))
-#x1 <- x1 - seq(0.1, 4, length = n2*2)
 x2 <- x1 +2.5
 x3 <- x1 - 2.5
 
@@ -77,15 +78,23 @@ scplot(case) %>%
   set_dataline(point = list(size = 1)) %>%
   add_dataline("x2", point = list(size = 1, colour = "grey90"), colour = "grey90") %>%
   add_dataline("x3", point = list(size = 1, colour = "grey90"), colour = "grey90") %>%
-  add_text("Strength of the\nintervention effect",x = n2+1, y = 11, hjust = 0, face = 3) %>%
+  add_text("Strength of the\nintervention effect (level)",x = n2+1, y = 11, hjust = 0, face = 3) %>%
   add_arrow(x0 = n2+0.5, y0 = 17, x1 = n2+0.5, y1 = 7, ends = "both") %>%
   add_arrow(x0 = 1, y0 = 22, x1 = n2, y1 = 22, ends = "both") %>%
   add_arrow(x0 = n2+1, y0 = 22, x1 = n2*2, y1 = 22, ends = "both") %>%
-  add_arrow(x0 = 1, y0 = -4, x1 = n2*2, y1 = -2, ends = "last", color = "grey90") %>%
-  add_arrow(x0 = 1, y0 = -4, x1 = n2*2, y1 = -7, ends = "last", color = "grey90") %>%
-  add_arrow(x0 = 1, y0 = -4, x1 = n2*2, y1 = -4, ends = "last") %>%
-  add_text("Trend effect",x = 3, y = -1, hjust = 0, face = 3) %>%
+  add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -4, ends = "last", color = "grey90") %>%
+  add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -9, ends = "last", color = "grey90") %>%
+  add_arrow(x0 = 1, y0 = -6, x1 = n2*2, y1 = -6, ends = "last") %>%
+  add_text("Trend effect",x = 3, y = -3, hjust = 0, face = 3) %>%
+  add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = 0, ends = "last", color = "grey90") %>%
+  add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = -2, ends = "last", color = "grey90") %>%
+  add_arrow(x0 = n2+1, y0 = -1, x1 = n2*2, y1 = -1, ends = "last") %>%
+  add_text("Strength of the\nintervention effect (slope)",x = n2+1, y = 2, hjust = 0, face = 3,) %>%
   set_separator(linetype = "dashed", size = 0.2)
+
+#ggsave(filename = "figure1.tiff", width = 18, height = 12,  device='tiff', units = "cm", dpi=300)
+
+
 ```
 
 
@@ -98,8 +107,8 @@ base_design <- design_template(
   n = n_sims,
   start_value = 15,
   level = -(15 *0.50),
-  trend = rnorm(n_sims, 0, 0.2 * 15 /30),
-  slope = rnorm(n_sims, 0, 0.25 * 15 * 0.50 /20),
+  trend = rnorm(n_sims, 0, 0.1 * 15 /30),
+  slope = rnorm(n_sims, 0, 0.1 * 15 /20),
   phase_design = list(A = 10, B = 20),
   distribution = "poisson"
 )
@@ -118,13 +127,14 @@ set.seed(1231)
 design <- design(n = 3,
   start_value = 15,
   level = -(15 *0.50),
-  trend = c(-0.2 * 15 /30, 0, 0.2 * 15 /30),
-  slope = c(0.25 * 15 * 0.50 /20, 0, -0.25 * 15 * 0.50 /20),
+  trend = c(-0.1 * 15 /30, 0, 0.1 * 15 /30),
+  slope = c(0.1 * 15 /20, 0, -0.1 * 15 / 20),
   phase_design = list(A = 10, B = 20),
   distribution = "poisson")
 dat <- random_scdf(design)
 
 scplot::scplot(dat) %>%
+  add_theme("basic") %>%
   set_ylabel("Frequency problem behavior") %>%
   set_yaxis(limits = c(0,30)) %>%
   set_xaxis(increment = 2) %>%
@@ -137,6 +147,7 @@ scplot::scplot(dat) %>%
   add_text(paste0("Trend = ", round(design$cases[[3]]$trend,2), "; slope = ",
            round(design$cases[[3]]$slope[2], 2)), 3, 1, 2, hjust = 0, size = 0.8)
 
+ggsave(filename = "figure2.tiff", width = 18, height = 12,  device='tiff', units = "cm", dpi=300)
 
 
 ```
@@ -170,8 +181,8 @@ design <- design_template(
     n = n_sims,
     start_value = 15,
     level = level_effect*15,
-    trend = rnorm(n_sims, 0, abs(0.2*15/(A_length+B_length)) ),
-    slope = rnorm(n_sims, 0, abs(0.25*level_effect*15/B_length)),
+    trend = rnorm(n_sims, 0, abs(0.1*15/(A_length+B_length)) ),
+    slope = rnorm(n_sims, 0, abs(0.1*15/B_length)),
     phase_design = list(A = A_length, B = B_length),
     distribution = "poisson"
 )
@@ -179,14 +190,17 @@ design <- design_template(
 iterations <- list(
   A_length = seq(3, 20, by = 2),
   B_length = c(10, 15, 20, 30, 40, 50),
-  level_effect = c(-0.2, -0.4, -0.6, -0.8),
+  level_effect = c(-0.8, -0.6, -0.4, -0.2),#c(-0.2, -0.4, -0.6, -0.8),
   n_sims = 10000
 )
 
 out <- create_mc("phaselenght by leveleffect.rds", 
                  design, iterations,
                  force_renew = FALSE, alpha_test = TRUE)
-plot_mc(out, caption = FALSE)
+plot_mc(out, caption = FALSE, reverse = FALSE)
+
+ggsave(filename = "figure3.tiff", width = 18, height = 18,  device='tiff', units = "cm", dpi=300, scale = 1)
+
 
 ```
 
@@ -201,8 +215,8 @@ design <- design_template(
     n = n_sims,
     start_value = problemintensity,
     level = problemintensity*level_effect,
-    trend = rnorm(n_sims, 0, 0.2 * problemintensity/length),
-    slope = rnorm(n_sims, 0, 0.25* abs(problemintensity*level_effect)/(length * 2 /3)),
+    trend = rnorm(n_sims, 0, 0.1 * problemintensity/length),
+    slope = rnorm(n_sims, 0, 0.1 * problemintensity/(length * 2 /3)),
     phase_design = list(A = length * 1/3, B = length * 2/3 ),
     distribution = "poisson"
 )
@@ -223,6 +237,8 @@ plot_mc(out, caption = FALSE,
         var_shape = 3,
         var_facet = 1, ncol = 3)
 
+ggsave(filename = "figure4.tiff", width = 18, height = 18,  device='tiff', units = "cm", dpi=300, scale = 1.1)
+
 ```
 
 ```{r results='asis'}
@@ -238,7 +254,7 @@ design <- design_template(
     start_value = problemintensity,
     level = -(problemintensity*0.5),
     trend = trend_effect*problemintensity/length,
-    slope = rnorm(n_sims, 0, abs(0.25*problemintensity*-0.5/(length * 2/3))),
+    slope = rnorm(n_sims, 0, abs(0.1*problemintensity/(length * 2/3))),
     phase_design = list(A = length * 1/3, B = length * 2/3 ),
     distribution = "poisson"
 )
@@ -259,6 +275,7 @@ plot_mc(out, caption = FALSE,
         var_shape = 3,
         var_facet = 1, ncol = 3)
 
+ggsave(filename = "figure5.tiff", width = 18, height = 18,  device='tiff', units = "cm", dpi=300, scale = 1.1)
 ```
 
 ```{r results='asis'}
